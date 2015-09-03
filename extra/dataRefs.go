@@ -11,6 +11,7 @@ import (
 )
 
 
+//Registriert die übergebenen DataRefs entweder beim DataRefEditor (http://www.xsquawkbox.net/xpsdk/mediawiki/DataRefEditor) bzw. beim DataRefTool (https://github.com/leecbaker/datareftool)
 func RegisterDataRefToDataRefEditor(name... string) bool {
 	pluginId := plugins.FindPluginBySignature("xplanesdk.examples.DataRefEditor")
 	if pluginId == plugins.NO_PLUGIN_ID {
