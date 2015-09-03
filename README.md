@@ -61,7 +61,7 @@ Linux: go build -o lin.xpl -buildmode=c-shared  TestPlugin.go
 
 ## Unterstütze Plattformen
 
-Linux: x64
-Mac: nicht getestet
-Windows: nicht unterstützt (siehe offenen Issue bei GO https://github.com/golang/go/issues/11058)
+- Linux: x64
+- Mac: nicht getestet
+- Windows: nicht unterstützt (siehe offenen Issue bei GO https://github.com/golang/go/issues/11058)
 
