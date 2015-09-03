@@ -7,7 +7,7 @@ import (
 /*
 #cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
-#include "../../../../../../SDK/CHeaders/XPLM/XPLMPlanes.h"
+#include <XPLM/XPLMPlanes.h>
 #include <stdlib.h>
 #include <string.h>
 */
