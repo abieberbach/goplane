@@ -14,7 +14,10 @@ package scenery
 extern void objectLoadedCallback(XPLMObjectRef inObject, void* inRefcon);
 */
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+	"github.com/abieberbach/goplane/xplm/graphics"
+)
 
 type ProbeType int
 type ProbeResult int
@@ -55,4 +58,9 @@ func ProbeTerrainXYZ(probeRef ProbeRef, x, y, z float32) (ProbeResult, ProbeInfo
 	info.size=int32(unsafe.Sizeof(info))
 	result := ProbeResult(C.XPLMProbeTerrainXYZ(C.XPLMProbeRef(probeRef), C.float(x), C.float(y), C.float(z), (*C.XPLMProbeInfo_t)(unsafe.Pointer(&info))))
 	return result, info
+}
+
+func ProbeTerrainLatLonAlt(probeRef ProbeRef, lat, lon, alt float32) (ProbeResult, ProbeInfo) {
+	x64,y64,z64:=graphics.WorldToLocal(float64(lat),float64(lon),float64(alt))
+	return ProbeTerrainXYZ(probeRef,float32(x64),float32(y64),float32(z64))
 }
