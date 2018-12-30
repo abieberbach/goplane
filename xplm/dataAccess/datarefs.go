@@ -5,7 +5,7 @@
 package dataAccess
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMDataAccess.h>
 #include <stdlib.h>
@@ -16,33 +16,32 @@ import (
 	"unsafe"
 )
 
-
 type DataRef C.XPLMDataRef
 type DataRefType int
 
 const (
-	TypeUnknown DataRefType = 0
-	TypeInt DataRefType = 1
-	TypeFloat DataRefType = 2
-	TypeDouble DataRefType = 4
+	TypeUnknown    DataRefType = 0
+	TypeInt        DataRefType = 1
+	TypeFloat      DataRefType = 2
+	TypeDouble     DataRefType = 4
 	TypeFloatArray DataRefType = 8
-	TypeIntArray DataRefType = 16
-	TypeData DataRefType = 32
+	TypeIntArray   DataRefType = 16
+	TypeData       DataRefType = 32
 )
 
 func FindDataRef(dataRefName string) (DataRef, bool) {
 	cDataRefName := C.CString(dataRefName)
 	defer C.free(unsafe.Pointer(cDataRefName))
 	dataRef := C.XPLMFindDataRef(cDataRefName)
-	return DataRef(dataRef), dataRef!=nil
+	return DataRef(dataRef), dataRef != nil
 }
 
 func CanWriteDataRef(dataRef DataRef) bool {
-	return C.XPLMCanWriteDataRef(C.XPLMDataRef(dataRef))==1
+	return C.XPLMCanWriteDataRef(C.XPLMDataRef(dataRef)) == 1
 }
 
 func IsDataRefGood(dataRef DataRef) bool {
-	return C.XPLMIsDataRefGood(C.XPLMDataRef(dataRef))==1
+	return C.XPLMIsDataRefGood(C.XPLMDataRef(dataRef)) == 1
 }
 
 func GetDataRefTypes(dataRef DataRef) DataRefType {
@@ -105,7 +104,6 @@ func GetData(dataRef DataRef) []byte {
 func SetData(dataRef DataRef, value []byte) {
 	C.XPLMSetDatab(C.XPLMDataRef(dataRef), unsafe.Pointer(&value[0]), 0, C.int(len(value)))
 }
-
 
 func GetString(dataRef DataRef) string {
 	length := int(C.XPLMGetDatab(C.XPLMDataRef(dataRef), nil, 0, 0))

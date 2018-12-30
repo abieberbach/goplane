@@ -5,7 +5,7 @@
 package scenery
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMScenery.h>
 #include <stdlib.h>
@@ -15,14 +15,13 @@ extern void objectLoadedCallback(XPLMObjectRef inObject, void* inRefcon);
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane/xplm/graphics"
+	"unsafe"
 )
 
 type ProbeType int
 type ProbeResult int
 type ProbeRef unsafe.Pointer
-
 
 type ProbeInfo struct {
 	size      int32
@@ -39,10 +38,10 @@ type ProbeInfo struct {
 }
 
 const (
-	ProbeY  ProbeType = 0
-	ProbeHitTerrain  ProbeResult = 0
-	ProbeError  ProbeResult = 1
-	ProbeMissed  ProbeResult = 2
+	ProbeY          ProbeType   = 0
+	ProbeHitTerrain ProbeResult = 0
+	ProbeError      ProbeResult = 1
+	ProbeMissed     ProbeResult = 2
 )
 
 func CreateProbe(probeType ProbeType) ProbeRef {
@@ -55,12 +54,12 @@ func DestroyProbe(probeRef ProbeRef) {
 
 func ProbeTerrainXYZ(probeRef ProbeRef, x, y, z float32) (ProbeResult, ProbeInfo) {
 	info := ProbeInfo{}
-	info.size=int32(unsafe.Sizeof(info))
+	info.size = int32(unsafe.Sizeof(info))
 	result := ProbeResult(C.XPLMProbeTerrainXYZ(C.XPLMProbeRef(probeRef), C.float(x), C.float(y), C.float(z), (*C.XPLMProbeInfo_t)(unsafe.Pointer(&info))))
 	return result, info
 }
 
 func ProbeTerrainLatLonAlt(probeRef ProbeRef, lat, lon, alt float32) (ProbeResult, ProbeInfo) {
-	x64,y64,z64:=graphics.WorldToLocal(float64(lat),float64(lon),float64(alt))
-	return ProbeTerrainXYZ(probeRef,float32(x64),float32(y64),float32(z64))
+	x64, y64, z64 := graphics.WorldToLocal(float64(lat), float64(lon), float64(alt))
+	return ProbeTerrainXYZ(probeRef, float32(x64), float32(y64), float32(z64))
 }

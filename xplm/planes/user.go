@@ -5,7 +5,7 @@
 package planes
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMPlanes.h>
 #include <stdlib.h>

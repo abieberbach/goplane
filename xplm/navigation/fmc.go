@@ -5,7 +5,7 @@
 package navigation
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMNavigation.h>
 #include <stdlib.h>
@@ -13,7 +13,6 @@ package navigation
 */
 import "C"
 import "unsafe"
-
 
 func CountFMSEntries() int {
 	return int(C.XPLMCountFMSEntries())
@@ -47,17 +46,16 @@ func GetFMSEntryInfo(index int) (navType NavType, id string, navRef NavRef, alt 
 		(*C.float)(unsafe.Pointer(&lat)),
 		(*C.float)(unsafe.Pointer(&lon)))
 
-	id=C.GoString(cId)
+	id = C.GoString(cId)
 	return
 }
 
 func SetFMSEntryInfo(index int, navRef NavRef, altitude int) {
-	C.XPLMSetFMSEntryInfo(C.int(index),C.XPLMNavRef(navRef),C.int(altitude))
+	C.XPLMSetFMSEntryInfo(C.int(index), C.XPLMNavRef(navRef), C.int(altitude))
 }
 
-
 func SetFMSEntryLatLon(index int, lat, lon float32, altitude int) {
-	C.XPLMSetFMSEntryLatLon(C.int(index),C.float(lat),C.float(lon),C.int(altitude))
+	C.XPLMSetFMSEntryLatLon(C.int(index), C.float(lat), C.float(lon), C.int(altitude))
 }
 
 func ClearFMSEntry(index int) {

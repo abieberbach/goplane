@@ -5,7 +5,7 @@
 package utilities
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMUtilities.h>
 #include <stdlib.h>
@@ -47,7 +47,7 @@ func XPLMExtractFileAndPath(fullPath string) string {
 }
 
 func Initialized() bool {
-	return C.XPLMInitialized()==1
+	return C.XPLMInitialized() == 1
 }
 
 func GetVersions() (xplaneVersion, xplmVersion int, appId HostApplicationID) {
@@ -63,9 +63,9 @@ func GetLanguage() LanguageCode {
 }
 
 func DebugString(msg string) {
-	cMsg:= C.CString(msg)
+	cMsg := C.CString(msg)
 	defer C.free(unsafe.Pointer(cMsg))
-	C.XPLMDebugString(cMsg);
+	C.XPLMDebugString(cMsg)
 }
 
 //export errorCallback
@@ -74,24 +74,24 @@ func errorCallback(msg *C.char) {
 }
 
 func SetErrorCallback(callback ErrorCallback) {
-	errCallback=callback
+	errCallback = callback
 	C.XPLMSetErrorCallback(C.XPLMError_f(unsafe.Pointer(C.errorCallback)))
 }
 
 func FindSymbol(symbol string) unsafe.Pointer {
-	cSymbol:=C.CString(symbol)
+	cSymbol := C.CString(symbol)
 	defer C.free(unsafe.Pointer(cSymbol))
 	return unsafe.Pointer(C.XPLMFindSymbol(cSymbol))
 }
 
-func LoadDataFile(fileType DataFileType, filePath string) int{
-	cFilePath:=C.CString(filePath)
+func LoadDataFile(fileType DataFileType, filePath string) int {
+	cFilePath := C.CString(filePath)
 	defer C.free(unsafe.Pointer(cFilePath))
-	return int(C.XPLMLoadDataFile(C.XPLMDataFileType(fileType),cFilePath))
+	return int(C.XPLMLoadDataFile(C.XPLMDataFileType(fileType), cFilePath))
 }
 
-func SaveDataFile(fileType DataFileType, filePath string) int{
-	cFilePath:=C.CString(filePath)
+func SaveDataFile(fileType DataFileType, filePath string) int {
+	cFilePath := C.CString(filePath)
 	defer C.free(unsafe.Pointer(cFilePath))
-	return int(C.XPLMSaveDataFile(C.XPLMDataFileType(fileType),cFilePath))
+	return int(C.XPLMSaveDataFile(C.XPLMDataFileType(fileType), cFilePath))
 }

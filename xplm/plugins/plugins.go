@@ -5,7 +5,7 @@
 package plugins
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMPlugin.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	NO_PLUGIN_ID PluginId = -1
+	NO_PLUGIN_ID  PluginId = -1
 	PLUGIN_XPLANE PluginId = 0
 )
 
@@ -56,19 +56,19 @@ func GetPluginInfo(id PluginId) (name, filePath, signature, description string) 
 	descBuf := (*C.char)(C.malloc(255))
 	defer C.free(unsafe.Pointer(descBuf))
 	C.XPLMGetPluginInfo(C.XPLMPluginID(id), nameBuf, pathBuf, sigBuf, descBuf)
-	name=C.GoString(nameBuf)
-	filePath=C.GoString(pathBuf)
-	signature=C.GoString(sigBuf)
-	description=C.GoString(descBuf)
+	name = C.GoString(nameBuf)
+	filePath = C.GoString(pathBuf)
+	signature = C.GoString(sigBuf)
+	description = C.GoString(descBuf)
 	return
 }
 
 func IsPluginEnabled(id PluginId) bool {
-	return C.XPLMIsPluginEnabled(C.XPLMPluginID(id))==1
+	return C.XPLMIsPluginEnabled(C.XPLMPluginID(id)) == 1
 }
 
 func EnablePlugin(id PluginId) bool {
-	return C.XPLMEnablePlugin(C.XPLMPluginID(id))==1
+	return C.XPLMEnablePlugin(C.XPLMPluginID(id)) == 1
 }
 
 func DisablePlugin(id PluginId) {

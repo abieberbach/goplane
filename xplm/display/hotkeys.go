@@ -5,7 +5,7 @@
 package display
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMDisplay.h>
 #include <stdlib.h>
@@ -16,10 +16,10 @@ extern void handleHotKey(void* inRefcon);
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane"
-	"github.com/abieberbach/goplane/xplm/plugins"
 	"github.com/abieberbach/goplane/xplm"
+	"github.com/abieberbach/goplane/xplm/plugins"
+	"unsafe"
 )
 
 type HotKeyCallback func(ref interface{})
@@ -45,15 +45,15 @@ func RegisterHotKey(key xplm.VirtualKeyCode, flags xplm.KeyFlags, description st
 	defer C.free(unsafe.Pointer(cDescription))
 	cId := C.CString(goplane.IdGenerator())
 	regData := &hotKeyRegData{nil, callback, ref}
-	hotkeys[cId]=regData
+	hotkeys[cId] = regData
 	hotkeyId := HotKeyID(C.XPLMRegisterHotKey(C.char(key), C.XPLMKeyFlags(flags), cDescription, C.XPLMHotKey_f(unsafe.Pointer(C.handleHotKey)), unsafe.Pointer(cId)))
-	regData.id=hotkeyId
+	regData.id = hotkeyId
 	return hotkeyId
 }
 
 func XPLMUnregisterHotKey(hotkeyId HotKeyID) {
 	for key, regInfo := range hotkeys {
-		if regInfo.id==hotkeyId {
+		if regInfo.id == hotkeyId {
 			C.free(unsafe.Pointer(key))
 			delete(hotkeys, key)
 		}
@@ -78,10 +78,10 @@ func GetHotKeyInfo(hotkeyId HotKeyID) (virtualKey xplm.VirtualKeyCode, flags xpl
 		(*C.XPLMKeyFlags)(unsafe.Pointer(&flags)),
 		descBuf,
 		(*C.XPLMPluginID)(unsafe.Pointer(&pluginId)))
-	description=C.GoString(descBuf)
+	description = C.GoString(descBuf)
 	return
 }
 
-func SetHotKeyCombination(hotkeyId HotKeyID, virtualKey xplm.VirtualKeyCode,flags xplm.KeyFlags) {
-	C.XPLMSetHotKeyCombination(C.XPLMHotKeyID(hotkeyId),C.char(virtualKey),C.XPLMKeyFlags(flags))
+func SetHotKeyCombination(hotkeyId HotKeyID, virtualKey xplm.VirtualKeyCode, flags xplm.KeyFlags) {
+	C.XPLMSetHotKeyCombination(C.XPLMHotKeyID(hotkeyId), C.char(virtualKey), C.XPLMKeyFlags(flags))
 }

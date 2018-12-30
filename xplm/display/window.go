@@ -5,7 +5,7 @@
 package display
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMDisplay.h>
 #include <stdlib.h>
@@ -21,9 +21,9 @@ extern int windowHandleMouseWheel(XPLMWindowID inWindowID,int x, int y, int whee
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane"
 	"github.com/abieberbach/goplane/xplm"
+	"unsafe"
 )
 
 type MouseStatus int
@@ -53,14 +53,14 @@ type CreateWindowData struct {
 const (
 	MouseDown MouseStatus = 1
 	MouseDrag MouseStatus = 2
-	MouseUp MouseStatus = 3
+	MouseUp   MouseStatus = 3
 )
 
 const (
 	CursorDefault CursorStatus = 0
-	CursorHidden CursorStatus = 1
-	CursorArrow CursorStatus = 2
-	CursorCustom CursorStatus = 3
+	CursorHidden  CursorStatus = 1
+	CursorArrow   CursorStatus = 2
+	CursorCustom  CursorStatus = 3
 )
 
 var windows = make(map[*C.char]*CreateWindowData)
@@ -86,7 +86,7 @@ func drawWindowCallback(windowId C.XPLMWindowID, ref unsafe.Pointer) {
 func windowHandleKey(windowId C.XPLMWindowID, char C.char, flags C.XPLMKeyFlags, virtualKey C.char, ref unsafe.Pointer, losingFocus C.int) C.int {
 	id := (*C.char)(ref)
 	regInfo := windows[id]
-	return C.int(regInfo.HandleKeyFunc(WindowID(windowId), xplm.KeyCode(char), xplm.KeyFlags(flags), xplm.VirtualKeyCode(virtualKey), regInfo.Ref, losingFocus==1))
+	return C.int(regInfo.HandleKeyFunc(WindowID(windowId), xplm.KeyCode(char), xplm.KeyFlags(flags), xplm.VirtualKeyCode(virtualKey), regInfo.Ref, losingFocus == 1))
 }
 
 //export windowHandleMouseClick
@@ -110,21 +110,20 @@ func windowHandleMouseWheel(windowId C.XPLMWindowID, x, y, wheel, clicks C.int, 
 	return C.int(regInfo.HandleMouseWheelFunc(WindowID(windowId), int(x), int(y), int(wheel), int(clicks), regInfo.Ref))
 }
 
-
 func CreateWindow(left, top, right, bottom int, isVisible bool, drawCallback DrawWindow, keyCallback HandleKey, mouseClickCallback HandleMouseClick, ref interface{}) WindowID {
 	regInfo := &CreateWindowData{}
-	regInfo.Left=left
-	regInfo.Top=top
-	regInfo.Right=right
-	regInfo.Bottom=bottom
-	regInfo.Visible=isVisible
-	regInfo.DrawWindowFunc=drawCallback
-	regInfo.HandleKeyFunc=keyCallback
-	regInfo.HandleMouseClickFunc=mouseClickCallback
-	regInfo.Ref=ref
+	regInfo.Left = left
+	regInfo.Top = top
+	regInfo.Right = right
+	regInfo.Bottom = bottom
+	regInfo.Visible = isVisible
+	regInfo.DrawWindowFunc = drawCallback
+	regInfo.HandleKeyFunc = keyCallback
+	regInfo.HandleMouseClickFunc = mouseClickCallback
+	regInfo.Ref = ref
 
 	id := C.CString(goplane.IdGenerator())
-	windows[id]=regInfo
+	windows[id] = regInfo
 
 	return WindowID(C.XPLMCreateWindow(
 		C.int(left),
@@ -140,20 +139,20 @@ func CreateWindow(left, top, right, bottom int, isVisible bool, drawCallback Dra
 
 func CreateWindowEx(params *CreateWindowData) WindowID {
 	id := C.CString(goplane.IdGenerator())
-	windows[id]=params
+	windows[id] = params
 	cCreateWindowData := C.XPLMCreateWindow_t{}
-	cCreateWindowData.structSize=C.int(unsafe.Sizeof(cCreateWindowData))
-	cCreateWindowData.left=C.int(params.Left)
-	cCreateWindowData.top=C.int(params.Top)
-	cCreateWindowData.right=C.int(params.Right)
-	cCreateWindowData.bottom=C.int(params.Bottom)
-	cCreateWindowData.visible=C.int(goplane.FromBoolToInt(params.Visible))
-	cCreateWindowData.drawWindowFunc =C.XPLMDrawWindow_f(unsafe.Pointer(C.drawWindowCallback))
+	cCreateWindowData.structSize = C.int(unsafe.Sizeof(cCreateWindowData))
+	cCreateWindowData.left = C.int(params.Left)
+	cCreateWindowData.top = C.int(params.Top)
+	cCreateWindowData.right = C.int(params.Right)
+	cCreateWindowData.bottom = C.int(params.Bottom)
+	cCreateWindowData.visible = C.int(goplane.FromBoolToInt(params.Visible))
+	cCreateWindowData.drawWindowFunc = C.XPLMDrawWindow_f(unsafe.Pointer(C.drawWindowCallback))
 	cCreateWindowData.handleMouseClickFunc = C.XPLMHandleMouseClick_f(unsafe.Pointer(C.windowHandleMouseClick))
 	cCreateWindowData.handleKeyFunc = C.XPLMHandleKey_f(unsafe.Pointer(C.windowHandleKey))
-	cCreateWindowData.handleCursorFunc =C.XPLMHandleCursor_f(unsafe.Pointer(C.windowHandleCursorStatus))
-	cCreateWindowData.handleMouseWheelFunc=C.XPLMHandleMouseWheel_f(unsafe.Pointer(C.windowHandleMouseWheel))
-	cCreateWindowData.refcon=unsafe.Pointer(id)
+	cCreateWindowData.handleCursorFunc = C.XPLMHandleCursor_f(unsafe.Pointer(C.windowHandleCursorStatus))
+	cCreateWindowData.handleMouseWheelFunc = C.XPLMHandleMouseWheel_f(unsafe.Pointer(C.windowHandleMouseWheel))
+	cCreateWindowData.refcon = unsafe.Pointer(id)
 	return WindowID(C.XPLMCreateWindowEx((*C.XPLMCreateWindow_t)(unsafe.Pointer(&cCreateWindowData))))
 }
 
@@ -171,37 +170,36 @@ func GetWindowGeometry(windowId WindowID) (left, top, right, bottom int) {
 	return
 }
 
-func SetWindowGeometry(windowId WindowID,left, top, right, bottom int) {
-	C.XPLMSetWindowGeometry(C.XPLMWindowID(windowId),C.int(left),C.int(top),C.int(right),C.int(bottom))
+func SetWindowGeometry(windowId WindowID, left, top, right, bottom int) {
+	C.XPLMSetWindowGeometry(C.XPLMWindowID(windowId), C.int(left), C.int(top), C.int(right), C.int(bottom))
 }
 
 func GetWindowIsVisible(windowId WindowID) bool {
-	return C.XPLMGetWindowIsVisible(C.XPLMWindowID(windowId))==1
+	return C.XPLMGetWindowIsVisible(C.XPLMWindowID(windowId)) == 1
 }
 
-func SetWindowIsVisible(windowId WindowID,isVisible bool) {
-	C.XPLMSetWindowIsVisible(C.XPLMWindowID(windowId),C.int(goplane.FromBoolToInt(isVisible)))
+func SetWindowIsVisible(windowId WindowID, isVisible bool) {
+	C.XPLMSetWindowIsVisible(C.XPLMWindowID(windowId), C.int(goplane.FromBoolToInt(isVisible)))
 }
 
 func GetWindowRefCon(windowId WindowID) interface{} {
-	id:=(*C.char)(C.XPLMGetWindowRefCon(C.XPLMWindowID(windowId)))
+	id := (*C.char)(C.XPLMGetWindowRefCon(C.XPLMWindowID(windowId)))
 	return windows[id].Ref
 }
 
-func SetWindowRefCon(windowId WindowID,ref interface{})  {
-	id:=(*C.char)(C.XPLMGetWindowRefCon(C.XPLMWindowID(windowId)))
-	windows[id].Ref=ref
+func SetWindowRefCon(windowId WindowID, ref interface{}) {
+	id := (*C.char)(C.XPLMGetWindowRefCon(C.XPLMWindowID(windowId)))
+	windows[id].Ref = ref
 }
 
 func TakeKeyboardFocus(windowId WindowID) {
 	C.XPLMTakeKeyboardFocus(C.XPLMWindowID(windowId))
 }
 
-
 func BringWindowToFront(windowId WindowID) {
 	C.XPLMBringWindowToFront(C.XPLMWindowID(windowId))
 }
 
 func IsWindowInFront(windowId WindowID) bool {
-	return C.XPLMIsWindowInFront(C.XPLMWindowID(windowId))==1
+	return C.XPLMIsWindowInFront(C.XPLMWindowID(windowId)) == 1
 }

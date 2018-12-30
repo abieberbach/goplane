@@ -5,7 +5,7 @@
 package dataAccess
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMDataAccess.h>
 #include <stdlib.h>
@@ -32,8 +32,8 @@ extern void setData(void* inRef, void* values, int offset, int count);
 */
 import "C"
 import (
-	"unsafe"
 	"math"
+	"unsafe"
 )
 
 type GetIntDataFunc func(ref interface{}) int32
@@ -48,8 +48,6 @@ type GetFloatArrayDataFunc func(ref interface{}) []float32
 type SetFloatArrayDataFunc func(ref interface{}, value []float32, offset, count int)
 type GetDataFunc func(ref interface{}) []byte
 type SetDataFunc func(ref interface{}, value []byte, offset, count int)
-
-
 
 var (
 	dataRefs = make(map[unsafe.Pointer]regInfo)
@@ -80,7 +78,7 @@ type DataRefAccessors struct {
 func getIntData(ref unsafe.Pointer) C.int {
 	value := int32(0)
 	regInfo, _ := dataRefs[ref]
-	value=regInfo.accessors.ReadInt(regInfo.readRef)
+	value = regInfo.accessors.ReadInt(regInfo.readRef)
 	return C.int(value)
 }
 
@@ -94,7 +92,7 @@ func setIntData(ref unsafe.Pointer, value C.int) {
 func getFloatData(ref unsafe.Pointer) C.float {
 	value := float32(0.0)
 	regInfo, _ := dataRefs[ref]
-	value=regInfo.accessors.ReadFloat(regInfo.readRef)
+	value = regInfo.accessors.ReadFloat(regInfo.readRef)
 	return C.float(value)
 }
 
@@ -108,7 +106,7 @@ func setFloatData(ref unsafe.Pointer, value C.float) {
 func getDoubleData(ref unsafe.Pointer) C.double {
 	value := 0.0
 	regInfo, _ := dataRefs[ref]
-	value=regInfo.accessors.ReadDouble(regInfo.readRef)
+	value = regInfo.accessors.ReadDouble(regInfo.readRef)
 	return C.double(value)
 }
 
@@ -123,10 +121,10 @@ func getIntArrayData(ref unsafe.Pointer, cValues *C.int, offset, max C.int) C.in
 	length := 0
 	regInfo, _ := dataRefs[ref]
 	value := regInfo.accessors.ReadIntArray(regInfo.readRef)
-	length=len(value)
-	if cValues!=nil {
-		length=int(math.Min(float64(length), float64(max)))
-		C.memcpy(unsafe.Pointer(cValues), unsafe.Pointer(&value[offset]), C.size_t(int(unsafe.Sizeof(value[0])) * length))
+	length = len(value)
+	if cValues != nil {
+		length = int(math.Min(float64(length), float64(max)))
+		C.memcpy(unsafe.Pointer(cValues), unsafe.Pointer(&value[offset]), C.size_t(int(unsafe.Sizeof(value[0]))*length))
 	}
 	return C.int(length)
 }
@@ -135,20 +133,19 @@ func getIntArrayData(ref unsafe.Pointer, cValues *C.int, offset, max C.int) C.in
 func setIntArrayData(ref unsafe.Pointer, cValues *C.int, offset, count C.int) {
 	regInfo, _ := dataRefs[ref]
 	value := make([]int32, int(count))
-	C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(cValues), C.size_t(int(unsafe.Sizeof(value[0])) * int(count)))
+	C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(cValues), C.size_t(int(unsafe.Sizeof(value[0]))*int(count)))
 	regInfo.accessors.WriteIntArray(regInfo.writeRef, value, int(offset), int(count))
 }
-
 
 //export getFloatArrayData
 func getFloatArrayData(ref unsafe.Pointer, cValues *C.float, offset, max C.int) C.int {
 	length := 0
 	regInfo, _ := dataRefs[ref]
 	value := regInfo.accessors.ReadFloatArray(regInfo.readRef)
-	length=len(value)
-	if cValues!=nil {
-		length=int(math.Min(float64(length), float64(max)))
-		C.memcpy(unsafe.Pointer(cValues), unsafe.Pointer(&value[offset]), C.size_t(int(unsafe.Sizeof(value[0])) * length))
+	length = len(value)
+	if cValues != nil {
+		length = int(math.Min(float64(length), float64(max)))
+		C.memcpy(unsafe.Pointer(cValues), unsafe.Pointer(&value[offset]), C.size_t(int(unsafe.Sizeof(value[0]))*length))
 	}
 	return C.int(length)
 }
@@ -157,7 +154,7 @@ func getFloatArrayData(ref unsafe.Pointer, cValues *C.float, offset, max C.int) 
 func setFloatArrayData(ref unsafe.Pointer, cValues *C.float, offset, count C.int) {
 	regInfo, _ := dataRefs[ref]
 	value := make([]float32, int(count))
-	C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(cValues), C.size_t(int(unsafe.Sizeof(value[0])) * int(count)))
+	C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(cValues), C.size_t(int(unsafe.Sizeof(value[0]))*int(count)))
 	regInfo.accessors.WriteFloatArray(regInfo.writeRef, value, int(offset), int(count))
 }
 
@@ -166,9 +163,9 @@ func getData(ref unsafe.Pointer, cValues unsafe.Pointer, offset, max C.int) C.in
 	length := 0
 	regInfo, _ := dataRefs[ref]
 	value := regInfo.accessors.ReadData(regInfo.readRef)
-	length=len(value)
-	if cValues!=nil {
-		length=int(math.Min(float64(length), float64(max)))
+	length = len(value)
+	if cValues != nil {
+		length = int(math.Min(float64(length), float64(max)))
 		C.memcpy(cValues, unsafe.Pointer(&value[offset]), C.size_t(length))
 	}
 	return C.int(length)
@@ -182,65 +179,64 @@ func setData(ref unsafe.Pointer, cValues unsafe.Pointer, offset, count C.int) {
 	regInfo.accessors.WriteData(regInfo.writeRef, value, int(offset), int(count))
 }
 
-
 func RegisterDataAccessor(name string, dataType DataRefType, isWriteable bool, accessors DataRefAccessors, readRef, writeRef interface{}) DataRef {
 	cName := C.CString(name)
-	dataRefs[unsafe.Pointer(cName)]=regInfo{accessors, readRef, writeRef}
+	dataRefs[unsafe.Pointer(cName)] = regInfo{accessors, readRef, writeRef}
 	writable := 0
 	if isWriteable {
 		writable = 1
 	}
 
 	var (
-		intGetter C.XPLMGetDatai_f
-		intSetter C.XPLMSetDatai_f
-		floatGetter C.XPLMGetDataf_f
-		floatSetter C.XPLMSetDataf_f
-		doubleGetter C.XPLMGetDatad_f
-		doubleSetter C.XPLMSetDatad_f
-		intArrayGetter C.XPLMGetDatavi_f
-		intArraySetter C.XPLMSetDatavi_f
+		intGetter        C.XPLMGetDatai_f
+		intSetter        C.XPLMSetDatai_f
+		floatGetter      C.XPLMGetDataf_f
+		floatSetter      C.XPLMSetDataf_f
+		doubleGetter     C.XPLMGetDatad_f
+		doubleSetter     C.XPLMSetDatad_f
+		intArrayGetter   C.XPLMGetDatavi_f
+		intArraySetter   C.XPLMSetDatavi_f
 		floatArrayGetter C.XPLMGetDatavf_f
 		floatArraySetter C.XPLMSetDatavf_f
-		dataGetter C.XPLMGetDatab_f
-		dataSetter C.XPLMSetDatab_f
+		dataGetter       C.XPLMGetDatab_f
+		dataSetter       C.XPLMSetDatab_f
 	)
 
-	if accessors.ReadInt!=nil {
-		intGetter=C.XPLMGetDatai_f(unsafe.Pointer(C.getIntData))
+	if accessors.ReadInt != nil {
+		intGetter = C.XPLMGetDatai_f(unsafe.Pointer(C.getIntData))
 	}
-	if accessors.WriteInt!=nil {
-		intSetter=C.XPLMSetDatai_f(unsafe.Pointer(C.setIntData))
+	if accessors.WriteInt != nil {
+		intSetter = C.XPLMSetDatai_f(unsafe.Pointer(C.setIntData))
 	}
-	if accessors.ReadFloat!=nil {
-		floatGetter=C.XPLMGetDataf_f(unsafe.Pointer(C.getFloatData))
+	if accessors.ReadFloat != nil {
+		floatGetter = C.XPLMGetDataf_f(unsafe.Pointer(C.getFloatData))
 	}
-	if accessors.WriteFloat!=nil {
-		floatSetter=C.XPLMSetDataf_f(unsafe.Pointer(C.setFloatData))
+	if accessors.WriteFloat != nil {
+		floatSetter = C.XPLMSetDataf_f(unsafe.Pointer(C.setFloatData))
 	}
-	if accessors.ReadDouble!=nil {
-		doubleGetter=C.XPLMGetDatad_f(unsafe.Pointer(C.getDoubleData))
+	if accessors.ReadDouble != nil {
+		doubleGetter = C.XPLMGetDatad_f(unsafe.Pointer(C.getDoubleData))
 	}
-	if accessors.WriteDouble!=nil {
-		doubleSetter=C.XPLMSetDatad_f(unsafe.Pointer(C.setDoubleData))
+	if accessors.WriteDouble != nil {
+		doubleSetter = C.XPLMSetDatad_f(unsafe.Pointer(C.setDoubleData))
 	}
-	if accessors.ReadIntArray!=nil {
-		intArrayGetter=C.XPLMGetDatavi_f(unsafe.Pointer(C.getIntArrayData))
+	if accessors.ReadIntArray != nil {
+		intArrayGetter = C.XPLMGetDatavi_f(unsafe.Pointer(C.getIntArrayData))
 	}
-	if accessors.WriteIntArray!=nil {
-		intArraySetter=C.XPLMSetDatavi_f(unsafe.Pointer(C.setIntArrayData))
+	if accessors.WriteIntArray != nil {
+		intArraySetter = C.XPLMSetDatavi_f(unsafe.Pointer(C.setIntArrayData))
 	}
-	if accessors.ReadFloatArray!=nil {
-		floatArrayGetter=C.XPLMGetDatavf_f(unsafe.Pointer(C.getFloatArrayData))
+	if accessors.ReadFloatArray != nil {
+		floatArrayGetter = C.XPLMGetDatavf_f(unsafe.Pointer(C.getFloatArrayData))
 	}
-	if accessors.WriteFloatArray!=nil {
-		floatArraySetter=C.XPLMSetDatavf_f(unsafe.Pointer(C.setFloatArrayData))
+	if accessors.WriteFloatArray != nil {
+		floatArraySetter = C.XPLMSetDatavf_f(unsafe.Pointer(C.setFloatArrayData))
 	}
-	if accessors.ReadData!=nil {
-		dataGetter=C.XPLMGetDatab_f(unsafe.Pointer(C.getData))
+	if accessors.ReadData != nil {
+		dataGetter = C.XPLMGetDatab_f(unsafe.Pointer(C.getData))
 	}
-	if accessors.WriteData!=nil {
-		dataSetter=C.XPLMSetDatab_f(unsafe.Pointer(C.setData))
+	if accessors.WriteData != nil {
+		dataSetter = C.XPLMSetDatab_f(unsafe.Pointer(C.setData))
 	}
 
 	return DataRef(C.XPLMRegisterDataAccessor(

@@ -3,15 +3,15 @@ package extra
 /*
 #include <stdlib.h>
 #include <string.h>
- */
+*/
 import "C"
 import (
 	"fmt"
+	"github.com/abieberbach/goplane/extra/logging"
 	"github.com/abieberbach/goplane/xplm/plugins"
 	"github.com/abieberbach/goplane/xplm/processing"
 	"github.com/abieberbach/goplane/xplm/utilities"
 	"unsafe"
-	"github.com/abieberbach/goplane/extra/logging"
 )
 
 //Basisstruktur für ein X-Plane Plugin.
@@ -31,10 +31,10 @@ type XPlanePlugin struct {
 type PluginState int
 
 const (
-	PluginStart PluginState = 0 //Plugin wird gestartet
-	PluginEnable PluginState = 1 //Plugin wird aktiviert
+	PluginStart   PluginState = 0 //Plugin wird gestartet
+	PluginEnable  PluginState = 1 //Plugin wird aktiviert
 	PluginDisable PluginState = 2 //Plugin wird deaktiviert
-	PluginStop PluginState = 3 //Plugin wird gestoppt
+	PluginStop    PluginState = 3 //Plugin wird gestoppt
 )
 
 //Callback-Funktion für den Statuswechsel eines Plugins.
@@ -126,9 +126,8 @@ func (self *XPlanePlugin) onStart(name, sig, desc *C.char) {
 func copyStringToCPointer(text string, target *C.char) {
 	cMsg := C.CString(text)
 	defer C.free(unsafe.Pointer(cMsg))
-	C.strcpy(target, cMsg);
+	C.strcpy(target, cMsg)
 }
-
 
 func (self *XPlanePlugin) String() string {
 	return fmt.Sprintf("%v (singature: %v, id: %v)", self.GetName(), self.GetSignature(), self.GetId())
@@ -152,13 +151,13 @@ func XPluginStart(outName *C.char, outSig *C.char, outDesc *C.char) int {
 	return 1
 }
 
-
 //Externe Schnittstellen-Methode, die von X-Plane beim Aktivieren des Plugins angesprochen wird
 //export XPluginEnable
-func XPluginEnable() {
+func XPluginEnable() int {
 	if plugin.stateCallback != nil {
 		plugin.stateCallback(PluginEnable, plugin)
 	}
+	return 1
 }
 
 //Externe Schnittstellen-Methode, die von X-Plane beim Deaktivieren des Plugins angesprochen wird

@@ -3,8 +3,9 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package utilities
+
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMUtilities.h>
 #include <stdlib.h>
@@ -13,10 +14,9 @@ package utilities
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane/xplm"
+	"unsafe"
 )
-
 
 type CommandKeyID int
 type CommandButtonID int
@@ -223,33 +223,33 @@ const (
 )
 
 const (
-	Host_Unknown                        HostApplicationID = 0
-	Host_XPlane                         HostApplicationID = 1
-	Host_PlaneMaker                     HostApplicationID = 2
-	Host_WorldMaker                     HostApplicationID = 3
-	Host_Briefer                        HostApplicationID = 4
-	Host_PartMaker                      HostApplicationID = 5
-	Host_YoungsMod                      HostApplicationID = 6
-	Host_XAuto                          HostApplicationID = 7
+	Host_Unknown    HostApplicationID = 0
+	Host_XPlane     HostApplicationID = 1
+	Host_PlaneMaker HostApplicationID = 2
+	Host_WorldMaker HostApplicationID = 3
+	Host_Briefer    HostApplicationID = 4
+	Host_PartMaker  HostApplicationID = 5
+	Host_YoungsMod  HostApplicationID = 6
+	Host_XAuto      HostApplicationID = 7
 )
 
 const (
-	Language_Unknown                    LanguageCode = 0
-	Language_English                    LanguageCode = 1
-	Language_French                     LanguageCode = 2
-	Language_German                     LanguageCode = 3
-	Language_Italian                    LanguageCode = 4
-	Language_Spanish                    LanguageCode = 5
-	Language_Korean                     LanguageCode = 6
-	Language_Russian                    LanguageCode = 7
-	Language_Greek                      LanguageCode = 8
-	Language_Japanese                   LanguageCode = 9
-	Language_Chinese                    LanguageCode = 10
+	Language_Unknown  LanguageCode = 0
+	Language_English  LanguageCode = 1
+	Language_French   LanguageCode = 2
+	Language_German   LanguageCode = 3
+	Language_Italian  LanguageCode = 4
+	Language_Spanish  LanguageCode = 5
+	Language_Korean   LanguageCode = 6
+	Language_Russian  LanguageCode = 7
+	Language_Greek    LanguageCode = 8
+	Language_Japanese LanguageCode = 9
+	Language_Chinese  LanguageCode = 10
 )
 
 const (
-	DataFile_Situation                DataFileType = 1
-	DataFile_ReplayMovie              DataFileType = 2
+	DataFile_Situation   DataFileType = 1
+	DataFile_ReplayMovie DataFileType = 2
 )
 
 func SimulateKeyPress(keyType, key int) {

@@ -5,7 +5,7 @@
 package display
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMDisplay.h>
 #include <stdlib.h>
@@ -16,12 +16,12 @@ extern int keySnifferCallback(char inChar,XPLMKeyFlags inFlags, char inVirtualKe
 */
 import "C"
 import (
-	"unsafe"
-	"github.com/abieberbach/goplane"
 	"fmt"
-	"github.com/abieberbach/goplane/xplm"
+	"github.com/abieberbach/goplane"
 	"github.com/abieberbach/goplane/extra/logging"
+	"github.com/abieberbach/goplane/xplm"
 	"github.com/go-errors/errors"
+	"unsafe"
 )
 
 type DrawingPhase int
@@ -30,20 +30,20 @@ type DrawCallback func(phase DrawingPhase, isBefore bool, ref interface{}) int
 type KeySnifferCallback func(keyCode xplm.KeyCode, flags xplm.KeyFlags, virtualKeyCode xplm.VirtualKeyCode, ref interface{}) int
 
 const (
-	Phase_FirstScene DrawingPhase = 0
-	Phase_Terrain DrawingPhase = 5
-	Phase_Airports DrawingPhase = 10
-	Phase_Vectors DrawingPhase = 15
-	Phase_Objects DrawingPhase = 20
-	Phase_Airplanes DrawingPhase = 25
-	Phase_LastScene DrawingPhase = 30
-	Phase_FirstCockpit DrawingPhase = 35
-	Phase_Panel DrawingPhase = 40
-	Phase_Gauges DrawingPhase = 45
-	Phase_Window DrawingPhase = 50
-	Phase_LastCockpit DrawingPhase = 55
-	Phase_LocalMap3D DrawingPhase = 100
-	Phase_LocalMap2D DrawingPhase = 101
+	Phase_FirstScene      DrawingPhase = 0
+	Phase_Terrain         DrawingPhase = 5
+	Phase_Airports        DrawingPhase = 10
+	Phase_Vectors         DrawingPhase = 15
+	Phase_Objects         DrawingPhase = 20
+	Phase_Airplanes       DrawingPhase = 25
+	Phase_LastScene       DrawingPhase = 30
+	Phase_FirstCockpit    DrawingPhase = 35
+	Phase_Panel           DrawingPhase = 40
+	Phase_Gauges          DrawingPhase = 45
+	Phase_Window          DrawingPhase = 50
+	Phase_LastCockpit     DrawingPhase = 55
+	Phase_LocalMap3D      DrawingPhase = 100
+	Phase_LocalMap2D      DrawingPhase = 101
 	Phase_LocalMapProfile DrawingPhase = 102
 )
 
@@ -59,10 +59,8 @@ type regSnifferData struct {
 	ref                 interface{}
 }
 
-
 var callbacks = make(map[*C.char]regData)
 var keySnifferCallbacks = make(map[*C.char]regSnifferData)
-
 
 //export drawCallback
 func drawCallback(phase, isBefore C.int, ref unsafe.Pointer) C.int {
@@ -87,7 +85,7 @@ func RegisterDrawCallback(callback DrawCallback, phase DrawingPhase, wantsBefore
 func UnregisterDrawCallback(callback DrawCallback, phase DrawingPhase, wantsBefore bool, ref interface{}) bool {
 	var id *C.char
 	for key, info := range callbacks {
-		if info.funcPointerAsString == fmt.Sprint(callback)&&info.ref == ref {
+		if info.funcPointerAsString == fmt.Sprint(callback) && info.ref == ref {
 			id = key
 			defer C.free(unsafe.Pointer(id))
 		}
@@ -112,7 +110,7 @@ func RegisterKeySniffer(callback KeySnifferCallback, beforeWindows bool, ref int
 func UnregisterKeySniffer(callback KeySnifferCallback, beforeWindows bool, ref interface{}) bool {
 	var id *C.char
 	for key, info := range keySnifferCallbacks {
-		if info.funcPointerAsString == fmt.Sprint(callback)&&info.ref == ref {
+		if info.funcPointerAsString == fmt.Sprint(callback) && info.ref == ref {
 			id = key
 			defer C.free(unsafe.Pointer(id))
 		}

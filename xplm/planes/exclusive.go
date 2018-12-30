@@ -5,7 +5,7 @@
 package planes
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMPlanes.h>
 #include <stdlib.h>
@@ -30,12 +30,11 @@ extern void planesAvailableCallback(void* ref);
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane"
+	"unsafe"
 )
 
-
-type  PlaneDrawState struct {
+type PlaneDrawState struct {
 	structSize      int
 	GearPosition    float32
 	FlapRatio       float32
@@ -53,12 +52,12 @@ type PlanesAvailable func(ref interface{})
 
 type regInfo struct {
 	callback PlanesAvailable
-	ref interface{}
+	ref      interface{}
 }
 
 //export planesAvailableCallback
 func planesAvailableCallback(ref unsafe.Pointer) {
-	reg:=(*regInfo)(ref)
+	reg := (*regInfo)(ref)
 	reg.callback(reg.ref)
 }
 
@@ -68,8 +67,8 @@ func AcquirePlanes(planes []string, callback PlanesAvailable, ref interface{}) i
 	for i, s := range planes {
 		C.setArrayString(cAircrafts, C.CString(s), C.int(i))
 	}
-	reg:=&regInfo{callback,ref}
-	return int(C.XPLMAcquirePlanes(cAircrafts,C.XPLMPlanesAvailable_f(unsafe.Pointer(C.planesAvailableCallback)),unsafe.Pointer(reg)))
+	reg := &regInfo{callback, ref}
+	return int(C.XPLMAcquirePlanes(cAircrafts, C.XPLMPlanesAvailable_f(unsafe.Pointer(C.planesAvailableCallback)), unsafe.Pointer(reg)))
 }
 
 func ReleasePlanes() {
@@ -81,17 +80,17 @@ func SetActiveAircraftCount(count int) {
 }
 
 func SetAircraftModel(index int, path string) {
-	cPath:=C.CString(path)
+	cPath := C.CString(path)
 	defer C.free(unsafe.Pointer(cPath))
-	C.XPLMSetAircraftModel(C.int(index),cPath)
+	C.XPLMSetAircraftModel(C.int(index), cPath)
 }
 
 func DisableAIForPlane(index int) {
 	C.XPLMDisableAIForPlane(C.int(index))
 }
 
-func DrawAircraft(index int, x,y,z,pitch,roll,yaw float32, fullDraw bool,drawState  PlaneDrawState) {
-	drawState.structSize=int(unsafe.Sizeof(drawState))
+func DrawAircraft(index int, x, y, z, pitch, roll, yaw float32, fullDraw bool, drawState PlaneDrawState) {
+	drawState.structSize = int(unsafe.Sizeof(drawState))
 	C.XPLMDrawAircraft(
 		C.int(index),
 		C.float(x),

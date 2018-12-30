@@ -5,7 +5,7 @@
 package processing
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMProcessing.h>
 #include <stdlib.h>
@@ -16,11 +16,11 @@ extern float flightLoop(float elapsedSinceLastCall,float elapsedTimeSinceLastFli
 */
 import "C"
 import (
-	"unsafe"
 	"fmt"
 	"github.com/abieberbach/goplane"
 	"github.com/abieberbach/goplane/extra/logging"
 	"github.com/go-errors/errors"
+	"unsafe"
 )
 
 type FlightLoopPhaseType int
@@ -40,8 +40,8 @@ type regData struct {
 }
 
 const (
-	FlightLoop_Phase_BeforeFlightModel  FlightLoopPhaseType = 0
-	FlightLoop_Phase_AfterFlightModel   FlightLoopPhaseType = 1
+	FlightLoop_Phase_BeforeFlightModel FlightLoopPhaseType = 0
+	FlightLoop_Phase_AfterFlightModel  FlightLoopPhaseType = 1
 )
 
 var callbacks = make(map[*C.char]regData)
@@ -63,7 +63,7 @@ func RegisterFlightLoopCallback(flightLoop FlightLoopFunc, interval float32, ref
 
 func UnregisterFlightLoopCallback(flightLoop FlightLoopFunc, ref interface{}) {
 	for key, data := range callbacks {
-		if data.funcPointerAsString == fmt.Sprint(flightLoop)&&data.flightLoopData.Ref == ref {
+		if data.funcPointerAsString == fmt.Sprint(flightLoop) && data.flightLoopData.Ref == ref {
 			C.XPLMUnregisterFlightLoopCallback(C.XPLMFlightLoop_f(unsafe.Pointer(C.flightLoop)), unsafe.Pointer(data.flightLoopData))
 			delete(callbacks, key)
 		}
@@ -80,6 +80,7 @@ func SetFlightLoopCallbackInterval(flightLoop FlightLoopFunc, interval float32, 
 		if current.funcPointerAsString == fmt.Sprint(flightLoop) {
 			current.flightLoopData.Ref = ref
 			C.XPLMSetFlightLoopCallbackInterval(C.XPLMFlightLoop_f(C.flightLoop), C.float(interval), C.int(cRelativeToNow), unsafe.Pointer(key))
+			return
 		}
 	}
 }
@@ -112,7 +113,7 @@ func CreateFlightLoop(data *CreateFlightLoopData) FlightLoopId {
 }
 
 func DestroyFlightLoop(flightLoopId FlightLoopId) {
-	C.XPLMDestroyFlightLoop(C.XPLMFlightLoopID(flightLoopId));
+	C.XPLMDestroyFlightLoop(C.XPLMFlightLoopID(flightLoopId))
 }
 
 func ScheduleFlightLoop(flightLoopId FlightLoopId, interval float32, relativeToNow bool) {
@@ -120,5 +121,5 @@ func ScheduleFlightLoop(flightLoopId FlightLoopId, interval float32, relativeToN
 	if relativeToNow {
 		cRelativeToNow = 1
 	}
-	C.XPLMScheduleFlightLoop(C.XPLMFlightLoopID(flightLoopId), C.float(interval), C.int(cRelativeToNow));
+	C.XPLMScheduleFlightLoop(C.XPLMFlightLoopID(flightLoopId), C.float(interval), C.int(cRelativeToNow))
 }

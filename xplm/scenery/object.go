@@ -5,7 +5,7 @@
 package scenery
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMScenery.h>
 #include <stdlib.h>
@@ -15,11 +15,10 @@ extern void objectLoadedCallback(XPLMObjectRef inObject, void* inRefcon);
 */
 import "C"
 import (
-	"unsafe"
 	"github.com/abieberbach/goplane"
 	"github.com/abieberbach/goplane/xplm/graphics"
+	"unsafe"
 )
-
 
 type ObjectRef unsafe.Pointer
 
@@ -34,7 +33,6 @@ type DrawInfo struct {
 }
 
 var objLoadedCallbacks = make(map[*C.char]*objectLoadedReg)
-
 
 type ObjectLoaded func(objRef ObjectRef, ref interface{})
 

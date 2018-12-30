@@ -5,7 +5,7 @@
 package utilities
 
 /*
-#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1
+#cgo CFLAGS: -DLIN -DSIMDATA_EXPORTS -DXPLM200=1 -DXPLM210=1 -DXPLM300=1 -DXPLM301=1
 #cgo LDFLAGS: -Xlinker "--unresolved-symbols=ignore-all"
 #include <XPLM/XPLMUtilities.h>
 #include <stdlib.h>
@@ -15,9 +15,10 @@ extern int commandCallback(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,vo
 */
 import "C"
 import (
-	"unsafe"
-	"github.com/abieberbach/goplane"
 	"fmt"
+	"github.com/abieberbach/goplane"
+	"github.com/go-errors/errors"
+	"unsafe"
 )
 
 type CommandPhase int
@@ -26,22 +27,22 @@ type CommandRef unsafe.Pointer
 type CommandCallback func(command CommandRef, phase CommandPhase, ref interface{}) int
 
 const (
-	Phase_CommandBegin                       CommandPhase = 0
-	Phase_CommandContinue                    CommandPhase = 1
-	Phase_CommandEnd                         CommandPhase = 2
+	Phase_CommandBegin    CommandPhase = 0
+	Phase_CommandContinue CommandPhase = 1
+	Phase_CommandEnd      CommandPhase = 2
 )
 
 type regInfo struct {
 	callbackAsString string
-	command CommandRef
-	callback CommandCallback
-	ref interface{}
+	command          CommandRef
+	callback         CommandCallback
+	ref              interface{}
 }
 
 var callbacks = make(map[*C.char]*regInfo)
 
 func FindCommand(name string) CommandRef {
-	cName:=C.CString(name)
+	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 	return CommandRef(C.XPLMFindCommand(cName))
 }
@@ -59,35 +60,38 @@ func CommandOnce(command CommandRef) {
 }
 
 func CreateCommand(name, description string) CommandRef {
-	cName:=C.CString(name)
+	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
-	cDescription:=C.CString(description)
+	cDescription := C.CString(description)
 	defer C.free(unsafe.Pointer(cDescription))
-	return CommandRef(C.XPLMCreateCommand(cName,cDescription))
+	return CommandRef(C.XPLMCreateCommand(cName, cDescription))
 }
 
 //export commandCallback
-func commandCallback(command C.XPLMCommandRef, phase C.XPLMCommandPhase,refcon unsafe.Pointer) C.int {
-	id:=(*C.char)(refcon)
-	reg:=callbacks[id]
+func commandCallback(command C.XPLMCommandRef, phase C.XPLMCommandPhase, refcon unsafe.Pointer) C.int {
+	id := (*C.char)(refcon)
+	reg := callbacks[id]
 	defer func() {
-		err:=recover()
-		DebugString("Fatal: "+fmt.Sprint(err))
+		err := recover()
+		if err != nil {
+			DebugString(fmt.Sprintf("Error during commandCallback: %v", err))
+			DebugString(errors.Wrap(err, 1).ErrorStack())
+		}
 	}()
-	return C.int(reg.callback(CommandRef(command),CommandPhase(phase),reg.ref))
+	return C.int(reg.callback(CommandRef(command), CommandPhase(phase), reg.ref))
 }
 
 func RegisterCommandHandler(command CommandRef, callback CommandCallback, before bool, ref interface{}) {
-	cId:=C.CString(goplane.IdGenerator())
-	callbacks[cId]=&regInfo{fmt.Sprint(callback),command,callback,ref}
-	C.XPLMRegisterCommandHandler(C.XPLMCommandRef(command),C.XPLMCommandCallback_f(unsafe.Pointer(C.commandCallback)),C.int(goplane.FromBoolToInt(before)),unsafe.Pointer(cId))
+	cId := C.CString(goplane.IdGenerator())
+	callbacks[cId] = &regInfo{fmt.Sprint(callback), command, callback, ref}
+	C.XPLMRegisterCommandHandler(C.XPLMCommandRef(command), C.XPLMCommandCallback_f(unsafe.Pointer(C.commandCallback)), C.int(goplane.FromBoolToInt(before)), unsafe.Pointer(cId))
 }
 
 func UnregisterCommandHandler(command CommandRef, callback CommandCallback, before bool, ref interface{}) {
-	callbackAsString:=fmt.Sprint(callback)
-	for cId,regInfo:=range callbacks {
-		if regInfo.command==command && regInfo.callbackAsString==callbackAsString && regInfo.ref==ref {
-			C.XPLMUnregisterCommandHandler(C.XPLMCommandRef(command),C.XPLMCommandCallback_f(unsafe.Pointer(C.commandCallback)),C.int(goplane.FromBoolToInt(before)),unsafe.Pointer(cId))
+	callbackAsString := fmt.Sprint(callback)
+	for cId, regInfo := range callbacks {
+		if regInfo.command == command && regInfo.callbackAsString == callbackAsString && regInfo.ref == ref {
+			C.XPLMUnregisterCommandHandler(C.XPLMCommandRef(command), C.XPLMCommandCallback_f(unsafe.Pointer(C.commandCallback)), C.int(goplane.FromBoolToInt(before)), unsafe.Pointer(cId))
 			defer C.free(unsafe.Pointer(cId))
 		}
 	}
